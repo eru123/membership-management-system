@@ -1,0 +1,22 @@
+{
+  "main": "index.js",
+  "name": "skidd-mms",
+  "author": "eru123",
+  "version": "1.0.1",
+  "description": "A membership management system to record and track the members of your your industry",
+  "scripts": {
+    "test": "electron ."
+  },
+  "keywords": [
+    "mms,membership,management,system"
+  ],
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eru123/mms.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eru123/mms/issues"
+  },
+  "homepage": "https://github.com/eru123/mms#readme"
+}

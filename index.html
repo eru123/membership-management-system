@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Vue Project</title>
+    <link rel="stylesheet" href="css/all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/Chart.min.css">
+    <link rel="stylesheet" href="css/googleicons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/all.min.js"></script>
+    <script src="js/vue.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/Chart.min.js"></script>
+    <script src="js/sweetalert2.all.min.js"></script>
+    <script src="applib.js"></script>
+  </head>
+  <body class="text-dark">
+
+    <div id="app">
+      <!-- Setup -->
+      <div v-if="setup == true" class="card mt-3 container pb-4" style="width:500px;margin:auto;">
+        <h1 class="display-4">Setup</h1>
+        <hr>
+        <input type="hidden" v-bind:value="setupForm.login">
+        <div class="container-fluid pt-2">
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="fa fa-user"></i></span>
+            </div>
+            <input type="text" class="form-control" placeholder="Username" v-model="setupForm.user">
+          </div>
+
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="fa fa-smile"></i></span>
+            </div>
+            <input type="text" class="form-control" placeholder="Full name" v-model="setupForm.name" style="text-transform: capitalize;">
+          </div>
+
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="fa fa-lock"></i></span>
+            </div>
+            <input type="password" class="form-control" placeholder="Password" v-model="setupForm.pass">
+          </div>
+
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="fa fa-lock"></i></span>
+            </div>
+            <input type="password" class="form-control" placeholder="Confirm Password" v-model="setupForm.cpass">
+          </div>
+           <div class="mt-4 mx-5 text-justify" style="line-height: 15px;"><small><b>Note:</b> We considered that all data you record here is confidential so we are requiring the user to have a strong password and do not share it to anyone.</small></div>
+          </div>
+          <div class="text-center mt-4">
+            <button class="btn btn-primary" @click="setupFormProccess()">Proceed</button>
+          </div>
+         
+      </div>
+      <!-- Login -->
+      <div v-else-if="setup == false && start == 'login' && settings.login == true" class="container" style="width:400px;margin:4em auto;">
+        <h1 class="display-4">Login</h1>
+        <div class="pt-4">
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="fa fa-user"></i></span>
+            </div>
+            <input type="text" class="form-control" placeholder="Username" v-model="loginForm.user">
+          </div>
+
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="fa fa-lock"></i></span>
+            </div>
+            <input type="password" class="form-control" placeholder="Password" v-model="loginForm.pass">
+          </div>
+
+          <div class="text-right mt-4">
+            <button class="btn btn-primary" @click="login()">Login</button>
+          </div>
+        </div>
+
+      </div>
+      <!-- App -->
+      <div v-else-if="(loginForm.login == true && start == 'app') || settings.login == false" class="row">
+        <!-- Sidebar -->
+        <div class="col-5 col-sm-4 col-md-3 col-lg-3 col-xl-2  py-2 text-left sticky-top" id="side">
+            <ul class="nav nav-pills flex-column pt-3 px-2">
+              <li class="nav-item" title="Dashboard" @click="dash = 'main'">
+                <a class="btn-sm nav-link active" data-toggle="pill" href="#home"><span class="fa fa-chart-line mr-2"></span>  Dashboard</a>
+              </li>
+              <li class="nav-item" title="Add a new Member">
+                <a class="btn-sm nav-link" data-toggle="pill" href="#menu1"><span class="fa fa-user-plus mr-2"></span>  Add Member</a>
+              </li>
+              <li class="nav-item" title="Application Settings" @click="settp = 'main'">
+                <a class="btn-sm nav-link" data-toggle="pill" href="#settings"><span class="fa fa-cog mr-2"></span>  Settings</a>
+              </li>
+              <li class="nav-item" title="About">
+                <a class="btn-sm nav-link" data-toggle="pill" href="#about"><span class="fa fa-info-circle mr-2"></span>  About</a>
+              </li>
+              <li class="nav-item" title="Logout me now" v-if="settings.login == true">
+                <a class="btn-sm nav-link" data-toggle="pill" href="#logout" @click="logout()"><span class="fa fa-power-off mr-2"></span> Logout</a>
+              </li>
+            </ul>
+        </div>
+        <!-- Container -->
+        <div class="col py-4" id="cont">
+          <div class="tab-content">
+
+            <!-- Dashboard -->
+            <div class="tab-pane active container" id="home">
+             
+              <!-- View -->
+              <div v-if="dash == 'view'">
+                <h3 class="display-4">Profile</h3>
+                <div id="pvc">
+                  <img class="img-fluid rounded mb-3" v-bind:src="dashview.attachment">
+                  <div class="mb-3 ucwords">
+                     <small><b>Name</b></small>
+                     <div class="pl-2">{{dashview.fname}} {{dashview.lname}}</div>
+                   </div>
+                   <div class="mb-3 ucwords">
+                     <small><b>Gender</b></small>
+                     <div class="pl-2">
+                        <span v-if="dashview.gender == 'male'"><span class="fa fa-mars"></span> Male</span>
+                        <span v-else-if="dashview.gender == 'female'"><span class="fa fa-venus"></span> Female</span>
+                        <span v-else><span class="fa fa-genderless"></span> Other</span>
+                     </div>
+                   </div>
+                   <div class="mb-3">
+                     <small><b>Country</b></small>
+                     <div class="pl-2">{{dashview.country || 'N/A'}}</div>
+                   </div>
+                   <div class="mb-3">
+                     <small><b>Address</b></small>
+                     <div class="pl-2">{{dashview.address || 'N/A'}}</div>
+                   </div>
+                   <div class="mb-3">
+                     <small><b>Email</b></small>
+                     <div class="pl-2">{{dashview.email || 'N/A'}}</div>
+                   </div>
+                   <div class="mb-3">
+                     <small><b>Phone</b></small>
+                     <div class="pl-2">{{dashview.phone || 'N/A'}}</div>
+                   </div>
+                   <div class="mb-3">
+                     <small><b>Website</b></small>
+                     <div class="pl-2">{{dashview.website || 'N/A'}}</div>
+                   </div>
+                   <div class="mb-3 text-justify">
+                     <small><b>Description</b></small>
+                     <div class="pl-2">{{dashview.description || 'N/A'}}</div>
+                   </div>
+                </div>
+
+                <div class="text-right">
+                  <a title="Edit Information" @click="gotoEPF()" title="Edit" class="text-info mx-2" style="font-size:1.5em;" href="#"><i class="fa fa-edit"></i></a>
+                  <a title="Delete Membership" @click="deleteMember(dashview.id)" title="Delete member" class="text-danger mx-2" style="font-size:1.5em;" href="#"><i class="fa fa-trash"></i></a>
+                </div>
+              </div>
+
+              <!-- Edit Mermberships Profile -->
+              <div v-else-if="dash == 'edit'">
+                <h3 class="display-4">Edit Information</h3>
+                <div id="pvc">
+                    <img id="epfdpi" class="img-fluid rounded my-3" v-bind:src="editProfileForm.attachment">
+                    <div class="mb-3 ucwords">
+                      <small><b>Profile Picture</b></small>
+                      <input id="epfdp" accept="image/jpeg,image/png" class="form-control ml-2" type="file" onchange="epfdp()">
+                    </div>
+                    <div class="mb-3 ucwords">
+                      <small><b>First Name</b></small>
+                      <input class="form-control ml-2" type="text" v-model="editProfileForm.fname">
+                    </div>
+                    <div class="mb-3 ucwords">
+                      <small><b>Last Name</b></small>
+                      <input class="form-control ml-2" type="text" v-model="editProfileForm.lname">
+                    </div>
+                    <div class="mb-3 ucwords">
+                      <small><b>Gender</b></small>
+                      <select class="form-control ml-2" v-model="editProfileForm.gender">
+                        <option value="other">Gender (Other)</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                     <small><b>Country</b></small>
+                     <select class="form-control ml-2" v-model="editProfileForm.country">
+                      <option value="Philippines">Country (Philippines)</option>
+                      <option v-for="country in countries()" v-bind:value="country">{{country}}</option>
+                    </select>
+                    </div>
+                    <div class="mb-3">
+                     <small><b>Address</b></small>
+                     <input class="form-control ml-2" type="text" v-model="editProfileForm.address">
+                    </div>
+                    <div class="mb-3">
+                     <small><b>Email</b></small>
+                     <input class="form-control ml-2" type="email" v-model="editProfileForm.email">
+                    </div>
+                    <div class="mb-3">
+                     <small><b>Phone</b></small>
+                     <input class="form-control ml-2" type="number" v-model="editProfileForm.phone">
+                    </div>
+                    <div class="mb-3">
+                      <small><b>Website</b></small>
+                      <input class="form-control ml-2" type="text" v-model="editProfileForm.website">
+                    </div>
+                    <div class="mb-3 text-justify">
+                      <small><b>Description</b></small>
+                      <textarea rows="8" placeholder="Text here . . . " class="form-control ml-2" v-model="editProfileForm.description"></textarea>
+                    </div>
+                </div>
+
+                <div class="text-right">
+                  <button title="Save Changes" @click="saveEPF()" title="Edit" class="text-info mx-2 btn" style="font-size:1.5em;background: inherit;"><i class="fa fa-save"></i></button>
+                  <button title="Cancel Editing" @click="viewMember(editProfileForm.id)" title="Cancel Edit" class="text-danger mx-2 btn" style="font-size:1.5em;background: inherit;"><i class="fa fa-backspace"></i></button>
+                </div>
+              </div>
+
+              <!-- Error View -->
+              <div v-else-if="dash == 'errorView'">
+                <h3 class="display-4">ERROR</h3>
+                <div class="alert alert-danger my-3">
+                  <h4 class="font-weight-light">INVALID USER</h4>
+                  <br>
+                  <b>Possible reason:</b>
+                  <ul>
+                    <li>The user is not Existed.</li>
+                    <li>The user is already deleted.</li>
+                    <li>The database has been corrupted.</li>
+                    <li>Third party software is modifying the application.</li>
+                    <li>Unknown error occur.</li>
+                  </ul>
+                </div>
+                <div class="text-right">
+                  <button class="btn btn-primary" type="button" @click="dash = 'main'" name="button">Back</button>
+                </div>
+              </div>
+
+              <!-- Main -->
+              <div v-else>
+                <h3 title="Dashboard Section" class="display-4 ">Dashboard</h3>
+
+
+                <div v-if="hideRecentMembers == false && recentMembers.length > 0" class="mb-4">
+                  <h6>Recent Members</h6 >
+                  <div v-for="member in recentMembers" class="recent-members">
+                    {{member.fname}} {{member.lname}}
+                  </div>  
+                </div>
+
+
+
+
+                <h6>Database</h6 >
+                <table v-if="members.data.length > 0" class="table table-sm table-hover">
+                  <thead>
+                    <tr>
+                      <th title="Name"><span class="fa fa-user"></span> Name</th>
+                      <th title="Gender"><span class="fa fa-transgender"></span> Gender</th>
+                      <th title="Country"><span class="fa fa-flag"></span> Country</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="mem in members.data" @click="viewMember(mem.id)" v-bind:title="mem.fname + ' ' + mem.lname  + ' | ' + (mem.email || 'No Email')  + ' | ' + (mem.phone || 'No Phone') + ' | ' + (mem.description || 'No Description')">
+                      <td class="ucwords">{{mem.fname}} {{mem.lname}}</td>
+                      <td>
+                        <span v-if="mem.gender == 'male'"><span class="fa fa-mars"></span> Male</span>
+                        <span v-else-if="mem.gender == 'female'"><span class="fa fa-venus"></span> Female</span>
+                        <span v-else><span class="fa fa-genderless"></span> Other</span>
+                      </td>
+                      <td>{{mem.country}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div v-else class="alert alert-info">
+                  No records
+                </div>
+              </div>
+            </div>
+
+            <!-- Add Member -->
+            <div class="tab-pane container" id="menu1">
+                <h3 title="Add Member Section" class="display-4">Add Member</h3>
+
+                <!-- Add Member Form -->
+
+                <!-- Primary Information -->
+                <div class="mt-3">
+                  <h4 title="Primary Information" class="font-weight-light">Primary Information</h4>
+
+                  <div title="First name" class="input-group mb-2">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="material-icons">assignment_ind</i></span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="First name" v-model="members.tmpdata.fname" style="text-transform: capitalize;">
+                  </div>
+
+                  <div title="Last name" class="input-group mb-2">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="material-icons">assignment_ind</i></span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Last name" v-model="members.tmpdata.lname" style="text-transform: capitalize;">
+                  </div>
+
+                  <div title="Gender" class="input-group mb-2">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><span class="fa fa-transgender ml-2"></span></span>
+                    </div>
+                    <select class="form-control" v-model="members.tmpdata.gender">
+                      <option value="other">Gender (Other)</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- Secondary Information -->
+                <div class="mt-3">
+                  <h4 title="Secondary Information" class="font-weight-light">Secondary Information (Optional)</h4>
+
+                  <div title="Your Country" class="input-group mb-2">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="material-icons">flag</i></span>
+                    </div>
+                    <select class="form-control" v-model="members.tmpdata.country">
+                      <option value="Philippines">Country (Philippines)</option>
+                      <option v-for="country in countries()" v-bind:value="country">{{country}}</option>
+                    </select>
+                  </div>
+
+                  <div title="Home Address" class="input-group mb-2">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><span class="fa fa-home"></span></span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Address" v-model="members.tmpdata.address">
+                  </div>
+
+                  <div title="Email" class="input-group mb-2">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="material-icons">email</i></span>
+                    </div>
+                    <input type="email" class="form-control" placeholder="Email" v-model="members.tmpdata.email">
+                  </div>
+
+                  <div title="Phone Number/Mobile Number" class="input-group mb-2">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="material-icons">phone</i></span>
+                    </div>
+                    <input type="number" class="form-control" maxlength="12" placeholder="Phone" v-model="members.tmpdata.phone">
+                  </div>
+
+                  <div title="Website" class="input-group mb-2">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="material-icons">phonelink</i></span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Website" v-model="members.tmpdata.website">
+                  </div>
+
+                  <div title="Description" class="mt-3 mb-2">
+                    <h6 class="font-weight-light">Description</h6>
+                    <textarea rows="8" class="form-control" placeholder="Text here . . . " v-model="members.tmpdata.description"></textarea>
+                  </div>
+
+
+                </div>
+                <!-- Attachment -->
+                <div class="mt-3 mb-4" title="Form Attachment">
+                  <h4 class="font-weight-light">Attachment (ID Picture)</h4>
+                  <!-- <h5 class="font-weight-light">(Disabled)</h5> -->
+                  <img id="amgidp" class="img-fluid">
+                  <div class="input-group mb-2 mt-1">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="material-icons">add_a_photo</i></span>
+                    </div>
+                    <input type="file" class="form-control" accept="image/jpeg,image/png" id="amgid" onchange="amgid()">
+                  </div>
+
+                </div>
+                <!-- Save Changes/ Apply Changes -->
+                <div class="text-right" title="Saved and Add the new user to the database">
+                  <button class="btn btn-primary" name="button" @click="addMember()">Save</button>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="tab-pane container" id="settings">
+              <h3 title="Settings" class="display-4">Settings</h3>
+              <div class="mt-5">
+                <div v-if="settp == 'editpass'">
+                  <h5 title="Change Password" class="font-weight-light">Change Password</h5>
+                  <div class="mb-2" >
+                    <small><b>Old Password</b></small>
+                    <input type="password" class="form-control mx-2" id="sedop">
+                  </div>
+                  <div class="mb-2" >
+                    <small><b>New Password</b></small>
+                    <input type="password" class="form-control mx-2" id="sednp">
+                  </div>
+                  <div class="mb-2" >
+                    <small><b>Confirm New Password</b></small>
+                    <input type="password" class="form-control mx-2" id="sedcnp">
+                  </div>
+                  <div class="text-right">
+                    <button class="btn btn-primary" @click="newPassword()">Save</button><button class="btn btn-danger ml-2" @click="settp = 'main'">Cancel</button>
+                  </div>
+                </div>
+                <div v-else-if="settp == 'edituser'">
+                  <h5 title="Edit Username" class="font-weight-light">Edit Username</h5>
+                  <div class="mb-4" >
+                    <small><b>New Username</b></small>
+                    <input type="text" class="form-control mx-2" v-bind:value="settings.user" id="sedun">
+                  </div>
+                  <div class="mb-2" >
+                    <small>To verify this changes you must re-enter your password <br> <b>Password (For Confirmation)</b></small>
+                    <input type="password" class="form-control mx-2" id="sedunp" >
+                  </div>
+                  <div class="text-right">
+                    <button class="btn btn-primary" @click="newUsername()">Save</button><button class="btn btn-danger ml-2" @click="settp = 'main'">Cancel</button>
+                  </div>
+                </div>
+                <div v-else-if="settp == 'editname'">
+                  <h5 title="Edit Name" class="font-weight-light mb-3">Edit Name</h5>
+                  <div class="mb-2">
+                    <small><b>First Name</b></small>
+                    <input type="text" class="form-control mx-2" v-bind:value="settings.name" id="sedfn" style="text-transform: capitalize;">
+                  </div>
+                  <div class="mb-2" >
+                    <small><b>Last Name</b></small>
+                    <input type="text" class="form-control mx-2" id="sedln" style="text-transform: capitalize;">
+                  </div>
+                  <div class="text-right">
+                    <button class="btn btn-primary" @click="newName()">Save</button><button class="btn btn-danger ml-2" @click="settp = 'main'">Cancel</button>
+                  </div>
+                </div>
+                <div v-else>
+                  <div title="Fullname" class="mb-2">
+                    <small><b>Name</b></small>
+                    <div class="ml-2 row">
+                      <div class="col" style="text-transform: capitalize;">{{settings.name}}</div>
+                      <div class="col-4 text-right"><button @click="settp = 'editname'" class="btn btn-sm btn-outline-dark">Edit</button></div>
+                    </div>
+                  </div>
+                  <div title="Username" class="mb-2">
+                    <small><b>Username</b></small>
+                    <div class="ml-2 row">
+                      <div class="col">{{settings.user}}</div>
+                      <div class="col-4 text-right"><button  @click="settp = 'edituser'" class="btn btn-sm btn-outline-dark">Edit</button></div>
+                    </div>
+                  </div>
+                  <div title="Password" class="mb-2">
+                    <small><b>Password</b></small>
+                    <div class="ml-2 row">
+                      <div class="col">********</div>
+                      <div class="col-4 text-right"><button @click="settp = 'editpass'" class="btn btn-sm btn-outline-dark">Change</button></div>
+                    </div>
+                  </div>
+                  <div title="Turn Login On/Off" class="mb-2">
+                    <small><b>Login on start</b></small>
+                    <div class="ml-2 row">
+                      <div class="col">Status: {{(settings.login ? 'On' : 'Off')}}</div>
+                      <div class="col-4 text-right">
+                        <button v-if="settings.login" @click="sedlToggle()" class="btn btn-sm btn-outline-dark">Turn Off</button>
+                        <button v-else @click="sedlToggle()" class="btn btn-sm btn-outline-dark">Turn On</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- About -->
+            <div class="tab-pane container" id="about">
+              <h3 class="display-4">About</h3>
+              <div class="my-3">
+                <h4 class="font-weight-light">Membership Management System <br> <small>Version {{version}}</small> </h4>
+                <p>Management system that helps you to record and keep tracks of the Memberships in your industry.</p>
+
+                <div class="mt-4">
+                  Consider supporting us on <br>
+                  <span class="fab fa-facebook-square mr-2"></span> facebook.com/w3mart <br>
+                  <span class="fab fa-github mr-2"></span> github.com/eru123
+                </div>
+
+                <div class="mt-4">
+                  Author<br>
+                  <span class="fa fa-user-edit mr-2"></span> Jericho Aquino
+                </div>
+
+                <div class="mt-4">
+                  Contact us on<br>
+                  <span class="fab fa-google-plus-g mr-2"></span> yeoligoakino@gmail.com
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script type="text/javascript">
+
+      // App
+      var app = new Vue({
+        el : '#app',
+        data : {
+          version : "1.0.1 - Production",
+          brand : "SKIDD",
+          todos : [],
+          todosIndex : 0,
+          todoc : "",
+          start : "login",
+          setup : true,
+          searchResults : [],
+          hideRecentMembers : false,
+          recentMembers : [],
+          setupForm : {
+            user : "",
+            name : "",
+            pass : "",
+            cpass : "",
+            accept : false,
+            login : true
+          },
+          loginForm : {
+            user : "",
+            pass : "",
+            login : false
+          },
+          members : {
+            types : [],
+            data : [],
+            tmpdata : {
+              id: 0,
+              fname: "",
+              lname: "",
+              gender: "male",
+              country: "Philippines",
+              address: "",
+              email: "",
+              phone: "",
+              website: "",
+              attachment: "",
+              description : ""
+            }
+          },
+          dash : "main",
+          dashview : {
+            id: 0,
+            fname: "N/A",
+            lname: "N/A",
+            gender: "N/A",
+            country: "N/A",
+            address: "N/A",
+            email: "N/A",
+            phone: "N/A",
+            website: "N/A",
+            attachment: "",
+            description : "N/A"
+          },
+          editProfileForm : [],
+          settp: "main",
+          settings : ((localStorage.getItem('setupForm') != null) ? JSON.parse( localStorage.getItem('setupForm')) : [])
+        }
+      })
+      initSetup(); 
+    </script>
+  </body>
+</html>

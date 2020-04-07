@@ -1,0 +1,56 @@
+::-webkit-scrollbar {
+	width: 10px;
+}
+::-webkit-scrollbar-track {
+  	background: lightgray;
+}
+::-webkit-scrollbar-thumb {
+  	background: #737373;
+}
+#app {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  max-height: 100vh;
+  display: block;
+  height: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#side {
+  height: 100vh;
+  overflow-y: auto;
+  /* border-right: 1px solid #ccc; */
+}
+#cont {
+  height: 100vh;
+  overflow-y: auto;
+}
+.input-group-text {
+	min-width: 50px;
+	text-align: center;
+}
+
+body {
+  -webkit-user-select: none;
+}
+
+.ucwords {
+  text-transform: capitalize;
+}
+
+.recent-members {
+  text-transform: capitalize;
+  padding-left: 5px;
+  border-left: 1px solid gray;
+  transition: .5s;
+  margin-bottom: .7em;
+  border-bottom: 1px solid lightgray;
+}
+.recent-members:hover {
+  border-left: 5px solid gray;
+  padding-left: 20px;
+}
